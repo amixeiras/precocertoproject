@@ -1,0 +1,262 @@
+<div class="space-y-8 max-w-5xl mx-auto">
+  
+  <!-- Header -->
+  <div class="bg-linear-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-8 sm:p-10 shadow-xl border border-indigo-900/30">
+    <div class="max-w-3xl space-y-3">
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+        Engenharia de Software de Alto Nível
+      </span>
+      <h1 class="text-3xl sm:text-4xl font-black tracking-tight">
+        Arquitetura DDD, Clean Code & SOLID
+      </h1>
+      <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+        O projeto <strong>projectprecocerto</strong> foi projetado segundo os mais rigorosos padrões de arquitetura de software empresarial, separando totalmente regras de negócio das camadas externas de infraestrutura e apresentação.
+      </p>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="flex items-center gap-2 mt-8 pt-6 border-t border-indigo-900/50">
+      <button
+        type="button"
+        (click)="setTab('ddd')"
+        [class.bg-white]="activeTab() === 'ddd'"
+        [class.text-slate-900]="activeTab() === 'ddd'"
+        [class.font-bold]="activeTab() === 'ddd'"
+        [class.bg-white/10]="activeTab() !== 'ddd'"
+        [class.text-white]="activeTab() !== 'ddd'"
+        class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer hover:bg-white/20"
+      >
+        Domain-Driven Design (DDD)
+      </button>
+
+      <button
+        type="button"
+        (click)="setTab('solid')"
+        [class.bg-white]="activeTab() === 'solid'"
+        [class.text-slate-900]="activeTab() === 'solid'"
+        [class.font-bold]="activeTab() === 'solid'"
+        [class.bg-white/10]="activeTab() !== 'solid'"
+        [class.text-white]="activeTab() !== 'solid'"
+        class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer hover:bg-white/20"
+      >
+        Princípios SOLID
+      </button>
+
+      <button
+        type="button"
+        (click)="setTab('cleancode')"
+        [class.bg-white]="activeTab() === 'cleancode'"
+        [class.text-slate-900]="activeTab() === 'cleancode'"
+        [class.font-bold]="activeTab() === 'cleancode'"
+        [class.bg-white/10]="activeTab() !== 'cleancode'"
+        [class.text-white]="activeTab() !== 'cleancode'"
+        class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer hover:bg-white/20"
+      >
+        Clean Code & Padrões
+      </button>
+    </div>
+  </div>
+
+  <!-- TAB 1: DDD -->
+  @if (activeTab() === 'ddd') {
+    <div class="space-y-6 animate-fade-in">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Domain Layer -->
+        <div class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-3">
+          <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-black text-xs">1</span>
+            <h3 class="text-base font-bold text-slate-900">Camada de Domínio (<code class="text-emerald-700 font-mono text-xs">src/app/domain</code>)</h3>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            O coração do software. Não possui dependências do Angular, HTTP ou bibliotecas externas. 
+            Contém as entidades de negócio puras, objetos de valor (Value Objects) e contratos (Ports).
+          </p>
+          <ul class="text-xs text-slate-700 space-y-1.5 list-disc list-inside">
+            <li><strong>Entidades:</strong> <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">Product</code>, <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">Market</code>, <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">Region</code>, <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">PriceOffer</code></li>
+            <li><strong>Value Objects:</strong> <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">Price</code> (validação, BRL), <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">Coordinates</code> (Haversine), <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">MarketAddress</code></li>
+            <li><strong>Domain Service:</strong> <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">PriceComparisonDomainService</code> (cálculo de economia do carrinho)</li>
+            <li><strong>Ports:</strong> <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">ProductRepository</code>, <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">MarketRepository</code>, <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">RegionRepository</code></li>
+          </ul>
+        </div>
+
+        <!-- Application Layer -->
+        <div class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-3">
+          <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-lg bg-blue-100 text-blue-800 flex items-center justify-center font-black text-xs">2</span>
+            <h3 class="text-base font-bold text-slate-900">Camada de Aplicação (<code class="text-blue-700 font-mono text-xs">src/app/application</code>)</h3>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Orquestra o fluxo de dados para atender os Casos de Uso (Use Cases) do sistema.
+            Cada Use Case implementa o princípio da Responsabilidade Única (SRP) com um método <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">execute()</code>.
+          </p>
+          <ul class="text-xs text-slate-700 space-y-1.5 list-disc list-inside">
+            <li><code class="bg-slate-100 px-1 py-0.5 rounded font-mono">SearchProductsUseCase</code>: Pesquisa, categorização e ordenação</li>
+            <li><code class="bg-slate-100 px-1 py-0.5 rounded font-mono">GetProductDetailsUseCase</code>: Detalhes e comparativo completo</li>
+            <li><code class="bg-slate-100 px-1 py-0.5 rounded font-mono">GetFeaturedDealsUseCase</code>: Melhores ofertas por região</li>
+            <li><code class="bg-slate-100 px-1 py-0.5 rounded font-mono">GetMarketsByRegionUseCase</code>: Supermercados e distâncias GPS</li>
+            <li><code class="bg-slate-100 px-1 py-0.5 rounded font-mono">DetectUserRegionUseCase</code>: Detecção geográfica da região</li>
+          </ul>
+        </div>
+
+        <!-- Infrastructure Layer -->
+        <div class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-3">
+          <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center font-black text-xs">3</span>
+            <h3 class="text-base font-bold text-slate-900">Camada de Infraestrutura (<code class="text-amber-700 font-mono text-xs">src/app/infrastructure</code>)</h3>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Implementa os detalhes técnicos e as portas definidas pelo domínio.
+            Contém repositórios concretos, adaptadores de APIs do navegador e Mappers de dados.
+          </p>
+          <ul class="text-xs text-slate-700 space-y-1.5 list-disc list-inside">
+            <li><strong>Mappers:</strong> <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">ProductMapper</code>, <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">MarketMapper</code>, <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">RegionMapper</code></li>
+            <li><strong>Repositórios:</strong> <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">InMemoryProductRepository</code>, <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">HttpProductRepository</code></li>
+            <li><strong>Adaptadores:</strong> <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">BrowserGeolocationAdapter</code></li>
+            <li><strong>Inversão de Dependência:</strong> <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">providePrecoCertoInfrastructure()</code></li>
+          </ul>
+        </div>
+
+        <!-- Presentation Layer -->
+        <div class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-3">
+          <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-lg bg-purple-100 text-purple-800 flex items-center justify-center font-black text-xs">4</span>
+            <h3 class="text-base font-bold text-slate-900">Camada de Apresentação (<code class="text-purple-700 font-mono text-xs">src/app/presentation</code>)</h3>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Interface gráfica moderna desenvolvida com Angular 22 Signals, Standalone Components e Tailwind CSS v4.
+            Totalmente desacoplada das regras de dados através de Use Cases.
+          </p>
+          <ul class="text-xs text-slate-700 space-y-1.5 list-disc list-inside">
+            <li><strong>State reativo:</strong> <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">RegionStateService</code> com <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">signal</code> e <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">computed</code></li>
+            <li><strong>Componentes reutilizáveis:</strong> <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">ProductCard</code>, <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">MarketCard</code>, <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">Navbar</code></li>
+            <li><strong>Pipes puros:</strong> <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">CurrencyBrlPipe</code>, <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">DistancePipe</code></li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  }
+
+  <!-- TAB 2: SOLID -->
+  @if (activeTab() === 'solid') {
+    <div class="space-y-4 animate-fade-in">
+      
+      <!-- S -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs flex items-start gap-4">
+        <span class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-base shrink-0">
+          S
+        </span>
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Single Responsibility Principle (Responsabilidade Única)</h3>
+          <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+            Cada classe possui uma única razão para mudar. Os Casos de Uso (<code class="font-mono text-emerald-700">SearchProductsUseCase</code>, <code class="font-mono text-emerald-700">DetectUserRegionUseCase</code>) realizam apenas uma ação específica.
+            Os Mappers convertem dados e nada mais. Os Value Objects validam seus invariantes e calculam valores.
+          </p>
+        </div>
+      </div>
+
+      <!-- O -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs flex items-start gap-4">
+        <span class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black text-base shrink-0">
+          O
+        </span>
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Open/Closed Principle (Aberto para Extensão, Fechado para Modificação)</h3>
+          <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+            As camadas internas dependem de contratos/interfaces abstratas (<code class="font-mono text-blue-700">ProductRepository</code>).
+            Para trocar de mock em memória para backend REST API, GraphQL ou Firebase, basta criar um novo repositório em <code class="font-mono">infrastructure</code> sem alterar uma linha sequer do domínio ou use cases.
+          </p>
+        </div>
+      </div>
+
+      <!-- L -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs flex items-start gap-4">
+        <span class="w-10 h-10 rounded-xl bg-amber-600 text-white flex items-center justify-center font-black text-base shrink-0">
+          L
+        </span>
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Liskov Substitution Principle (Substituição de Liskov)</h3>
+          <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+            Tanto <code class="font-mono text-amber-700">InMemoryProductRepository</code> quanto <code class="font-mono text-amber-700">HttpProductRepository</code> implementam com fidelidade a interface <code class="font-mono">ProductRepository</code>, podendo ser substituídos mutuamente sem quebrar a execução do sistema.
+          </p>
+        </div>
+      </div>
+
+      <!-- I -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs flex items-start gap-4">
+        <span class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center font-black text-base shrink-0">
+          I
+        </span>
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Interface Segregation Principle (Segregação de Interfaces)</h3>
+          <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+            Interfaces enxutas e focadas no propósito do consumidor. A porta de geolocalização (<code class="font-mono text-purple-700">GeolocationPort</code>) é isolada dos repositórios de dados, não forçando clientes a depender de métodos desnecessários.
+          </p>
+        </div>
+      </div>
+
+      <!-- D -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs flex items-start gap-4">
+        <span class="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center font-black text-base shrink-0">
+          D
+        </span>
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Dependency Inversion Principle (Inversão de Dependência)</h3>
+          <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+            Módulos de alto nível não dependem de módulos de baixo nível; ambos dependem de abstrações.
+            Utilizamos <code class="font-mono text-rose-700">InjectionToken</code> do Angular para injetar as interfaces nos Casos de Uso na função <code class="font-mono">providePrecoCertoInfrastructure()</code>.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  }
+
+  <!-- TAB 3: CLEAN CODE -->
+  @if (activeTab() === 'cleancode') {
+    <div class="space-y-6 animate-fade-in">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 space-y-2">
+          <h3 class="text-sm font-bold text-slate-900">Linguagem Ubíqua</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Termos do domínio de negócios do Preço Certo são refletidos diretamente no código: <code class="font-mono">Product</code>, <code class="font-mono">Market</code>, <code class="font-mono">PriceOffer</code>, <code class="font-mono">Region</code>, <code class="font-mono">Savings</code>.
+          </p>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 space-y-2">
+          <h3 class="text-sm font-bold text-slate-900">Padrão Result (Monad)</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Elimina o lançamento de exceções não controladas em regras de domínio. O tipo <code class="font-mono">Result&lt;T, E&gt;</code> torna sucessos e erros explícitos na assinatura dos métodos.
+          </p>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 space-y-2">
+          <h3 class="text-sm font-bold text-slate-900">Imutabilidade</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Value Objects e Entidades utilizam modificadores <code class="font-mono">readonly</code> e <code class="font-mono">Object.freeze()</code>, garantindo previsibilidade e prevenindo efeitos colaterais.
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Path Aliases Clean Code -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 space-y-3">
+        <h3 class="text-sm font-bold text-slate-900">Path Aliases sem Caminhos Relativos Sujos</h3>
+        <p class="text-xs text-slate-600 leading-relaxed">
+          Configurados no <code class="font-mono text-emerald-700">tsconfig.json</code> para evitar <code class="font-mono">../../../</code>:
+        </p>
+        <div class="bg-slate-900 text-slate-200 p-4 rounded-xl font-mono text-xs overflow-x-auto">
+          <code>
+            import &#123; Product &#125; from '&#64;domain/product/models/product.entity';<br>
+            import &#123; SearchProductsUseCase &#125; from '&#64;application/product/use-cases/search-products.usecase';<br>
+            import &#123; PRODUCT_REPOSITORY &#125; from '&#64;infrastructure/tokens/injection-tokens';<br>
+          </code>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>
+

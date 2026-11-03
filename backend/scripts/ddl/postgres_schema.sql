@@ -1,0 +1,103 @@
+-- ==============================================================================
+-- DDL SCRIPT: CRIAÇÃO DO BANCO DE DADOS PREÇO CERTO (POSTGRESQL)
+-- ==============================================================================
+
+CREATE TABLE IF NOT EXISTS REGIONS (
+    id VARCHAR(100) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    city VARCHAR(100) NOT NULL,
+    state VARCHAR(10) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS MARKETS (
+    id VARCHAR(100) PRIMARY KEY,
+    region_id VARCHAR(100) NOT NULL REFERENCES REGIONS(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL,
+    address TEXT,
+    neighborhood VARCHAR(150),
+    latitude NUMERIC(10, 6),
+    longitude NUMERIC(10, 6),
+    flyer_url TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS CATEGORIES (
+    id VARCHAR(100) PRIMARY KEY,
+    name VARCHAR(150) NOT NULL,
+    slug VARCHAR(100) UNIQUE NOT NULL,
+    icon VARCHAR(50)
+);
+
+CREATE TABLE IF NOT EXISTS PRODUCTS (
+    id VARCHAR(150) PRIMARY KEY,
+    category_id VARCHAR(100) NOT NULL REFERENCES CATEGORIES(id) ON DELETE CASCADE,
+    canonical_name VARCHAR(255) NOT NULL,
+    barcode_ean VARCHAR(50) UNIQUE,
+    unit VARCHAR(20) NOT NULL,
+    image_url TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS MARKET_OFFERS (
+    id VARCHAR(150) PRIMARY KEY,
+    market_id VARCHAR(100) NOT NULL REFERENCES MARKETS(id) ON DELETE CASCADE,
+    product_id VARCHAR(150) NOT NULL REFERENCES PRODUCTS(id) ON DELETE CASCADE,
+    current_price NUMERIC(10, 2) NOT NULL,
+    original_price NUMERIC(10, 2),
+    is_top_deal SMALLINT DEFAULT 0,
+    display_order INTEGER DEFAULT 1,
+    valid_until VARCHAR(100),
+    is_active SMALLINT DEFAULT 1,
+    image_url TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS USERS (
+    id VARCHAR(100) PRIMARY KEY,
+    username VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS CATEGORY_PARAMETERS (
+    id VARCHAR(100) PRIMARY KEY,
+    category_id VARCHAR(100) NOT NULL REFERENCES CATEGORIES(id) ON DELETE CASCADE,
+    description TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS SCRAPER_PATTERNS (
+    id VARCHAR(100) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    card_container TEXT NOT NULL,
+    product_name TEXT NOT NULL,
+    current_price TEXT NOT NULL,
+    original_price TEXT,
+    discount_tag TEXT,
+    unit VARCHAR(50),
+    image_selector TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS MARKET_SCRAPER_PATTERNS (
+    id VARCHAR(150) PRIMARY KEY,
+    market_id VARCHAR(100) NOT NULL REFERENCES MARKETS(id) ON DELETE CASCADE,
+    pattern_id VARCHAR(100) NOT NULL REFERENCES SCRAPER_PATTERNS(id) ON DELETE CASCADE,
+    scraper_patterns_id VARCHAR(100),
+    catalog_url TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_pg_markets_region ON MARKETS(region_id);
+CREATE INDEX IF NOT EXISTS idx_pg_products_category ON PRODUCTS(category_id);
+CREATE INDEX IF NOT EXISTS idx_pg_offers_market ON MARKET_OFFERS(market_id);
+CREATE INDEX IF NOT EXISTS idx_pg_offers_product ON MARKET_OFFERS(product_id);
+CREATE INDEX IF NOT EXISTS idx_pg_offers_top_deal ON MARKET_OFFERS(is_top_deal);
+CREATE INDEX IF NOT EXISTS idx_pg_offers_active ON MARKET_OFFERS(is_active);
+CREATE INDEX IF NOT EXISTS idx_pg_users_username ON USERS(username);
+CREATE INDEX IF NOT EXISTS idx_pg_cat_params_category ON CATEGORY_PARAMETERS(category_id);
+CREATE INDEX IF NOT EXISTS idx_pg_msp_market ON MARKET_SCRAPER_PATTERNS(market_id);
+CREATE INDEX IF NOT EXISTS idx_pg_msp_pattern ON MARKET_SCRAPER_PATTERNS(pattern_id);
+CREATE INDEX IF NOT EXISTS idx_pg_msp_scraper_patterns ON MARKET_SCRAPER_PATTERNS(scraper_patterns_id);
+

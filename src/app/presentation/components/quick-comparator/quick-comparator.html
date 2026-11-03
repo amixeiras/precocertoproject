@@ -1,0 +1,116 @@
+<div class="bg-white rounded-3xl p-6 sm:p-7 shadow-xl shadow-slate-200/60 border border-slate-100 relative overflow-hidden">
+  <div class="absolute -right-12 -top-12 w-36 h-36 bg-amber-400/10 rounded-full blur-2xl pointer-events-none"></div>
+  
+  <div class="flex items-center justify-between mb-4">
+    <div class="flex items-center gap-2.5">
+      <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center font-bold">
+        <i class="ph-bold ph-scales text-lg"></i>
+      </div>
+      <div>
+        <h3 class="font-bold text-slate-900 text-base">Comparador Rápido</h3>
+        <p class="text-xs text-slate-500">Descubra onde um produto está mais barato</p>
+      </div>
+    </div>
+    <span class="text-[11px] font-bold bg-emerald-50 text-emerald-700 px-2 py-1 rounded-lg">Tempo Real</span>
+  </div>
+
+  <div class="space-y-3">
+    <div class="relative">
+      <input 
+        type="text" 
+        [ngModel]="queryInput()"
+        (ngModelChange)="queryInput.set($event)"
+        placeholder="Ex: Leite Integral, Arroz 5kg, Picanha..."
+        class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white"
+        (keydown.enter)="executeCompare()"
+      />
+      <button 
+        type="button"
+        (click)="executeCompare()" 
+        class="absolute right-2 top-1/2 -translate-y-1/2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-xl transition cursor-pointer"
+      >
+        @if (isSearching()) {
+          <span>Buscando...</span>
+        } @else {
+          <span>Comparar</span>
+        }
+      </button>
+    </div>
+
+    <!-- Sugestões Rápidas -->
+    <div class="flex items-center gap-1.5 flex-wrap pt-1 text-xs">
+      <span class="text-slate-400 font-medium">Sugestões:</span>
+      @for (sug of suggestions; track sug) {
+        <button 
+          type="button"
+          (click)="setSuggestion(sug)" 
+          class="text-slate-600 bg-slate-100 hover:bg-slate-200 px-2 py-0.5 rounded-md font-medium cursor-pointer transition-colors"
+        >
+          {{ sug }}
+        </button>
+      }
+    </div>
+
+    <!-- Resultado do comparador rápido -->
+    @if (hasSearched()) {
+      <div class="mt-4 pt-4 border-t border-slate-100 space-y-2">
+        @if (!compareResult() || compareResult()!.items.length === 0) {
+          <div class="p-3 bg-amber-50 rounded-2xl text-amber-800 text-xs text-center border border-amber-200">
+            Nenhuma oferta encontrada para "<strong>{{ queryInput() }}</strong>" na região selecionada. Tente "Leite", "Arroz", "Picanha" ou mude a região.
+          </div>
+        } @else {
+          @let res = compareResult()!;
+          <div class="text-xs font-bold text-slate-700 mb-2 flex items-center justify-between">
+            <span>Comparativo de "{{ res.query }}" ({{ res.totalFound }} encontrado{{ res.totalFound > 1 ? 's' : '' }}):</span>
+            <span class="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded font-extrabold">Menor Preço em Destaque</span>
+          </div>
+
+          <div class="space-y-2 max-h-52 overflow-y-auto pr-1">
+            @for (item of res.items; track item.market.idValue + item.offer.idValue) {
+              <div 
+                [class.bg-emerald-50/70]="item.isLowestPrice"
+                [class.border-emerald-300]="item.isLowestPrice"
+                [class.bg-slate-50]="!item.isLowestPrice"
+                [class.border-slate-200]="!item.isLowestPrice"
+                class="flex items-center justify-between p-2.5 rounded-xl border transition-all"
+              >
+                <div class="flex items-center gap-2.5">
+                  <div class="w-7 h-7 rounded-lg {{ item.market.logoBg }} text-white flex items-center justify-center font-bold text-xs shrink-0">
+                    {{ item.market.logoLetter }}
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-xs font-bold text-slate-800">{{ item.market.name }}</span>
+                      @if (item.isLowestPrice) {
+                        <span class="text-[9px] bg-emerald-600 text-white font-black px-1.5 py-0.5 rounded">
+                          Mais Barato
+                        </span>
+                      }
+                    </div>
+                    <span class="text-[10px] text-slate-500">{{ item.offer.name }} ({{ item.market.regionName }})</span>
+                  </div>
+                </div>
+
+                <div class="text-right">
+                  <span 
+                    [class.text-emerald-700]="item.isLowestPrice" 
+                    [class.text-slate-800]="!item.isLowestPrice"
+                    class="text-xs font-black block"
+                  >
+                    {{ item.offer.price.amount | currencyBrl }}
+                  </span>
+                  @if (item.offer.oldPrice) {
+                    <div class="text-[10px] text-slate-400 line-through">
+                      {{ item.offer.oldPrice.amount | currencyBrl }}
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
+

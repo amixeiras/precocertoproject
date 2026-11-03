@@ -1,0 +1,335 @@
+<div class="space-y-8 animate-fade-in pb-12">
+
+  <!-- Top Bar / Header -->
+  <div class="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div class="space-y-1">
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-800 text-xs font-bold mb-1">
+        <span class="w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></span>
+        Painel de Controle &bull; SQLite
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+        Área do Administrador
+      </h1>
+      <p class="text-sm text-slate-500 max-w-xl">
+        Gerencie os estabelecimentos cadastrados, edite nomes e dispare a varredura de ofertas via Playwright.
+      </p>
+    </div>
+
+    <!-- Actions: Escanear URL & Logout -->
+    <div class="flex items-center gap-3 flex-wrap">
+      <!-- Botão com a função do botão escanear url da home -->
+      <button
+        type="button"
+        (click)="openScanModal()"
+        class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-bold shadow-md shadow-indigo-600/20 transition-all cursor-pointer"
+        title="Raspar ofertas de uma URL com Playwright"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <span>Escanear URL</span>
+      </button>
+
+      <!-- Logout Button -->
+      <button
+        type="button"
+        (click)="logout()"
+        class="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-red-50 hover:text-red-700 text-slate-600 border border-slate-200 text-xs sm:text-sm font-semibold transition-all cursor-pointer"
+        title="Sair do painel administrativo"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
+        <span>Sair</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Notification Banner -->
+  @if (notification()) {
+    <div 
+      [class.bg-emerald-50]="notification()!.type === 'success'"
+      [class.border-emerald-200]="notification()!.type === 'success'"
+      [class.text-emerald-800]="notification()!.type === 'success'"
+      [class.bg-red-50]="notification()!.type === 'error'"
+      [class.border-red-200]="notification()!.type === 'error'"
+      [class.text-red-800]="notification()!.type === 'error'"
+      class="p-4 rounded-2xl border text-sm font-semibold flex items-center justify-between gap-3 animate-fade-in"
+    >
+      <div class="flex items-center gap-2">
+        @if (notification()!.type === 'success') {
+          <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        } @else {
+          <svg class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        }
+        <span>{{ notification()!.text }}</span>
+      </div>
+      <button 
+        type="button" 
+        (click)="notification.set(null)"
+        class="text-xs font-bold underline hover:opacity-80 cursor-pointer"
+      >
+        Dispensar
+      </button>
+    </div>
+  }
+
+  <!-- Main Content Card: Grid dos Estabelecimentos -->
+  <div class="bg-white rounded-3xl border border-slate-200/90 shadow-xs overflow-hidden">
+    
+    <!-- Table Header Toolbar -->
+    <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <h2 class="text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
+          <span>Estabelecimentos Cadastrados</span>
+          <span class="text-xs font-bold bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-full">
+            {{ markets().length }} total
+          </span>
+        </h2>
+        <p class="text-xs text-slate-500 mt-0.5">
+          Lista sincronizada em tempo real com a tabela MARKETS do SQLite.
+        </p>
+      </div>
+
+      <!-- Quick Search inside Grid -->
+      <div class="w-full sm:w-72 relative">
+        <input
+          type="text"
+          [ngModel]="searchTerm()"
+          (ngModelChange)="searchTerm.set($event)"
+          placeholder="Buscar no grid por ID ou descrição..."
+          class="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+        />
+        <svg class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- The Grid / Table -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm">
+        <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[11px] tracking-wider">
+          <tr>
+            <th class="py-3.5 px-6">ID</th>
+            <th class="py-3.5 px-6">Descrição</th>
+            <th class="py-3.5 px-6 text-right">Ações</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 font-medium">
+          @if (isLoading()) {
+            @for (i of [1, 2, 3, 4]; track i) {
+              <tr class="animate-pulse">
+                <td class="py-4 px-6"><div class="h-4 bg-slate-200 rounded w-24"></div></td>
+                <td class="py-4 px-6"><div class="h-4 bg-slate-200 rounded w-48"></div></td>
+                <td class="py-4 px-6 text-right"><div class="h-8 bg-slate-100 rounded w-20 ml-auto"></div></td>
+              </tr>
+            }
+          } @else if (filteredMarkets().length === 0) {
+            <tr>
+              <td colspan="3" class="py-12 text-center text-slate-400">
+                <p class="font-bold text-slate-600">Nenhum estabelecimento encontrado.</p>
+                <p class="text-xs mt-1">Clique em "Escanear URL" para cadastrar novos estabelecimentos ou limpe o filtro.</p>
+              </td>
+            </tr>
+          } @else {
+            @for (m of filteredMarkets(); track m.id) {
+              <tr class="hover:bg-slate-50/80 transition-colors group">
+                <!-- Coluna ID -->
+                <td class="py-4 px-6 font-mono text-xs text-slate-600 font-bold">
+                  {{ m.id }}
+                </td>
+
+                <!-- Coluna Descrição -->
+                <td class="py-4 px-6 text-slate-900 font-bold">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span>{{ m.nome }}</span>
+                    @if (m.regiao) {
+                      <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200">
+                        {{ m.regiao }}
+                      </span>
+                    }
+                  </div>
+                  @if (m.endereco) {
+                    <p class="text-xs text-slate-400 font-normal mt-0.5">{{ m.endereco }}</p>
+                  }
+                </td>
+
+                <!-- Coluna Ações (Editar e Excluir) -->
+                <td class="py-4 px-6 text-right">
+                  <div class="inline-flex items-center gap-1.5">
+                    <!-- Botão Editar Descrição -->
+                    <button
+                      type="button"
+                      (click)="openEditModal(m)"
+                      class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-bold transition cursor-pointer"
+                      title="Editar descrição do estabelecimento"
+                    >
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                      <span>Editar</span>
+                    </button>
+
+                    <!-- Botão Excluir -->
+                    <button
+                      type="button"
+                      (click)="openDeleteModal(m)"
+                      class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-bold transition cursor-pointer"
+                      title="Excluir estabelecimento e ofertas (mantém produtos)"
+                    >
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                      <span>Excluir</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL DE EDIÇÃO DE DESCRIÇÃO DO ESTABELECIMENTO          -->
+  <!-- ======================================================== -->
+  @if (isEditModalOpen()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity" (click)="closeEditModal()"></div>
+      
+      <div class="relative bg-white rounded-3xl max-w-lg w-full shadow-2xl p-6 sm:p-8 space-y-6 z-10 animate-fade-in border border-slate-100">
+        <div>
+          <h3 class="text-xl font-black text-slate-900">Editar Descrição do Estabelecimento</h3>
+          <p class="text-xs text-slate-500 mt-1">
+            Altere o nome descritivo exibido para o supermercado no sistema.
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">ID (Somente Leitura)</label>
+            <input
+              type="text"
+              [value]="editingId()"
+              disabled
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 border border-slate-200 text-xs text-slate-500 font-mono"
+            />
+          </div>
+
+          <div>
+            <label for="editName" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Descrição / Nome do Estabelecimento
+            </label>
+            <input
+              id="editName"
+              type="text"
+              [ngModel]="editingName()"
+              (ngModelChange)="editingName.set($event)"
+              placeholder="Ex: Shibata Supermercados - Mogilar"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 font-semibold"
+            />
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-2 border-t border-slate-100">
+          <button
+            type="button"
+            (click)="closeEditModal()"
+            class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition cursor-pointer"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            (click)="saveEdit()"
+            [disabled]="isSavingEdit()"
+            class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition cursor-pointer disabled:opacity-50 flex items-center gap-1.5 shadow-sm"
+          >
+            @if (isSavingEdit()) {
+              <span class="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+              <span>Salvando...</span>
+            } @else {
+              <span>Salvar Alterações</span>
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ======================================================== -->
+  <!-- MODAL DE CONFIRMAÇÃO DE EXCLUSÃO                         -->
+  <!-- ======================================================== -->
+  @if (isDeleteModalOpen() && deletingMarket()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity" (click)="closeDeleteModal()"></div>
+      
+      <div class="relative bg-white rounded-3xl max-w-md w-full shadow-2xl p-6 sm:p-8 space-y-5 z-10 animate-fade-in border border-slate-100">
+        <div class="w-12 h-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+        </div>
+
+        <div>
+          <h3 class="text-lg font-black text-slate-900">Excluir Estabelecimento?</h3>
+          <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+            Tem certeza de que deseja excluir o estabelecimento 
+            <strong class="text-slate-900">"{{ deletingMarket()!.nome }}"</strong> (ID: {{ deletingMarket()!.id }})?
+          </p>
+          <div class="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-[11px] leading-relaxed">
+            <strong>Atenção:</strong> Todas as ofertas associadas a este mercado serão removidas do SQLite. O catálogo de <strong>produtos gerais será preservado</strong> intacto.
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-2">
+          <button
+            type="button"
+            (click)="closeDeleteModal()"
+            class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition cursor-pointer"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            (click)="confirmDelete()"
+            [disabled]="isDeleting()"
+            class="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition cursor-pointer disabled:opacity-50 flex items-center gap-1.5 shadow-sm"
+          >
+            @if (isDeleting()) {
+              <span class="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+              <span>Excluindo...</span>
+            } @else {
+              <span>Confirmar Exclusão</span>
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ======================================================== -->
+  <!-- MODAL DE ESCANEAR MERCADO VIA PLAYWRIGHT COM SELETORES   -->
+  <!-- ======================================================== -->
+  @if (isScanModalOpen()) {
+    <div class="fixed inset-0 z-40 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto animate-fade-in">
+      <div class="w-full max-w-4xl my-auto">
+        <app-scan-market 
+          [canClose]="true"
+          (close)="closeScanModal()" 
+          (saved)="onScanCompleted()"
+        />
+      </div>
+    </div>
+  }
+
+</div>
+

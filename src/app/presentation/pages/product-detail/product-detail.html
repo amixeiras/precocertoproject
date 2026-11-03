@@ -1,0 +1,187 @@
+<div class="space-y-8 max-w-5xl mx-auto">
+  
+  <!-- Back Button -->
+  <div>
+    <a
+      routerLink="/"
+      class="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-emerald-700 transition-colors"
+    >
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+      </svg>
+      <span>Voltar para busca de produtos</span>
+    </a>
+  </div>
+
+  @if (isLoading()) {
+    <div class="p-12 text-center bg-white rounded-3xl border border-slate-200">
+      <div class="animate-spin w-8 h-8 border-4 border-emerald-600 border-t-transparent rounded-full mx-auto"></div>
+      <p class="text-sm font-semibold text-slate-600 mt-4">Carregando comparativo de preços...</p>
+    </div>
+  } @else if (notFound() || !product()) {
+    <div class="p-12 text-center bg-white rounded-3xl border border-slate-200 space-y-4">
+      <h3 class="text-xl font-bold text-slate-800">Produto não encontrado</h3>
+      <p class="text-sm text-slate-500">O produto solicitado não foi localizado para a região atual.</p>
+      <a routerLink="/" class="inline-block px-5 py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-sm">
+        Voltar à página inicial
+      </a>
+    </div>
+  } @else {
+    @let prod = product()!;
+    @let lowest = prod.getLowestOffer();
+    @let savings = prod.calculateMaxSavings();
+
+    <!-- Product Overview Card -->
+    <div class="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-6 sm:p-8 grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+      <div class="md:col-span-1 rounded-2xl overflow-hidden bg-slate-50 border border-slate-100 aspect-square max-h-72 w-full mx-auto">
+        <img [src]="prod.imageUrl" [alt]="prod.fullName" class="w-full h-full object-cover" />
+      </div>
+
+      <div class="md:col-span-2 space-y-4">
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-slate-100 text-slate-700">
+            {{ prod.category }}
+          </span>
+          <span class="text-xs font-semibold text-slate-400">
+            Marca: <strong class="text-slate-700">{{ prod.brand }}</strong> &bull; Embalagem: <strong class="text-slate-700">{{ prod.unit }}</strong>
+          </span>
+        </div>
+
+        <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+          {{ prod.name }}
+        </h1>
+
+        <p class="text-sm text-slate-600 leading-relaxed">
+          {{ prod.description }}
+        </p>
+
+        @if (prod.barcode) {
+          <p class="text-xs text-slate-400">
+            Código de Barras (EAN): <code class="font-mono text-slate-600">{{ prod.barcode }}</code>
+          </p>
+        }
+
+        <!-- Max Savings Banner -->
+        @if (savings.percentage > 0) {
+          <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200/80 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold">
+                %
+              </div>
+              <div>
+                <p class="text-xs font-bold text-emerald-900">Variação de Preço na Região</p>
+                <p class="text-xs text-emerald-700">
+                  Diferença de até <strong>{{ savings.amount | currencyBrl }} ({{ savings.percentage }}%)</strong> entre os mercados
+                </p>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="text-[10px] uppercase font-bold text-emerald-600 block">Menor Preço</span>
+              <span class="text-xl font-black text-emerald-800">{{ lowest?.price?.amount | currencyBrl }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Comparative Table Section -->
+    <div class="bg-white rounded-3xl border border-slate-200/90 shadow-xs overflow-hidden">
+      <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <div>
+          <h2 class="text-base font-bold text-slate-900">Comparativo de Preços por Mercado</h2>
+          <p class="text-xs text-slate-500">Ordenado do menor para o maior preço na região selecionada</p>
+        </div>
+        <span class="text-xs font-bold text-slate-600 bg-white px-3 py-1.5 rounded-xl border border-slate-200">
+          {{ sortedOffers().length }} mercados pesquisados
+        </span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-slate-50/80 text-xs font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">
+            <tr>
+              <th class="px-6 py-4">Supermercado</th>
+              <th class="px-6 py-4">Preço Atual</th>
+              <th class="px-6 py-4">Status</th>
+              <th class="px-6 py-4">Diferença p/ Menor</th>
+              <th class="px-6 py-4 text-right">Data Verificação</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            @for (offer of sortedOffers(); track offer.idValue; let idx = $index) {
+              <tr [class.bg-emerald-50/30]="idx === 0" class="hover:bg-slate-50/80 transition-colors">
+                
+                <!-- Supermarket Name & Rank -->
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-3">
+                    @if (idx === 0) {
+                      <span class="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs font-black shrink-0 shadow-xs">
+                        1º
+                      </span>
+                    } @else {
+                      <span class="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold shrink-0">
+                        {{ idx + 1 }}º
+                      </span>
+                    }
+                    <div>
+                      <span class="font-bold text-slate-900 block">{{ offer.marketName }}</span>
+                      @if (idx === 0) {
+                        <span class="text-[10px] font-extrabold uppercase text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">
+                          ★ Menor Preço da Região
+                        </span>
+                      }
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Price -->
+                <td class="px-6 py-4">
+                  <div class="flex items-baseline gap-2">
+                    <span [class.text-emerald-700]="idx === 0" class="text-base font-extrabold text-slate-900">
+                      {{ offer.price.amount | currencyBrl }}
+                    </span>
+                    @if (offer.originalPrice && offer.originalPrice.amount > offer.price.amount) {
+                      <span class="line-through text-xs text-slate-400">
+                        {{ offer.originalPrice.amount | currencyBrl }}
+                      </span>
+                    }
+                  </div>
+                </td>
+
+                <!-- Sale/Promo -->
+                <td class="px-6 py-4">
+                  @if (offer.isOnSale) {
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800">
+                      Em Promoção (-{{ offer.discountPercentage }}%)
+                    </span>
+                  } @else {
+                    <span class="text-xs text-slate-500">Preço Regular</span>
+                  }
+                </td>
+
+                <!-- Difference to cheapest -->
+                <td class="px-6 py-4">
+                  @if (idx === 0) {
+                    <span class="text-xs font-bold text-emerald-600">Melhor opção (-R$ 0,00)</span>
+                  } @else if (lowest) {
+                    @let diff = offer.price.amount - lowest.price.amount;
+                    <span class="text-xs font-semibold text-rose-600">
+                      +{{ diff | currencyBrl }} mais caro
+                    </span>
+                  }
+                </td>
+
+                <!-- Updated at -->
+                <td class="px-6 py-4 text-right text-xs text-slate-400">
+                  {{ offer.updatedAt | date:'dd/MM/yyyy HH:mm' }}
+                </td>
+
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+</div>

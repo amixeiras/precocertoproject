@@ -1,0 +1,112 @@
+<header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-18">
+      
+      <!-- Brand Logo -->
+      <a routerLink="/" class="flex items-center gap-3 group">
+        <div class="w-10 h-10 rounded-xl bg-linear-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
+          </svg>
+        </div>
+        <div>
+          <span class="text-xl font-black tracking-tight text-slate-900 flex items-center gap-1">
+            Preço<span class="text-emerald-600">Certo</span>
+          </span>
+          <span class="block text-[10px] uppercase font-bold tracking-widest text-slate-400 -mt-1">
+            Comparador por Região
+          </span>
+        </div>
+      </a>
+
+      <!-- Navigation Links -->
+      <nav class="hidden md:flex items-center gap-1">
+        <a
+          routerLink="/"
+          routerLinkActive="bg-emerald-50 text-emerald-700 font-semibold"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="px-4 py-2 rounded-lg text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+        >
+          Pesquisa de Preços
+        </a>
+        <a
+          routerLink="/mercados"
+          routerLinkActive="bg-emerald-50 text-emerald-700 font-semibold"
+          class="px-4 py-2 rounded-lg text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+        >
+          Mercados da Região
+        </a>
+        <a
+          routerLink="/arquitetura"
+          routerLinkActive="bg-emerald-50 text-emerald-700 font-semibold"
+          class="px-4 py-2 rounded-lg text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors flex items-center gap-1.5"
+        >
+          <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+          DDD & Clean Code
+        </a>
+      </nav>
+
+      <!-- Right Controls: Painel Admin, Área Admin & Region Selector -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Botão Painel Admin (Renderizado SOMENTE quando o usuário admin estiver logado) -->
+        <!-- Renderização condicional com @if: o elemento não é criado no DOM se deslogado (não usa hidden/display:none) -->
+        @if (authService.isAuthenticated()) {
+          <a
+            routerLink="/admin"
+            routerLinkActive="bg-indigo-700 text-white shadow-md shadow-indigo-600/30"
+            class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all cursor-pointer shadow-xs shadow-indigo-500/20"
+            title="Acessar Painel do Administrador"
+          >
+            <i class="ph-bold ph-shield-check text-sm"></i>
+            <span>Painel Admin</span>
+          </a>
+        }
+
+        <!-- Botão Área Admin (Desabilitado SOMENTE quando o usuário admin estiver logado) -->
+        @if (authService.isAuthenticated()) {
+          <button
+            type="button"
+            disabled
+            class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 text-slate-400 border border-slate-200 text-xs font-bold cursor-not-allowed opacity-50 select-none shadow-none"
+            title="Usuário já autenticado na Área Admin"
+          >
+            <i class="ph-bold ph-lock-key-open text-sm"></i>
+            <span>Área Admin</span>
+          </button>
+        } @else {
+          <a
+            routerLink="/admin/login"
+            class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-bold transition-all cursor-pointer shadow-2xs"
+            title="Acessar Área Admin"
+          >
+            <i class="ph-bold ph-lock-key text-sm"></i>
+            <span>Área Admin</span>
+          </a>
+        }
+
+        <!-- Region Selector Trigger -->
+        <button
+          type="button"
+          (click)="openRegionModal()"
+          class="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 text-slate-800 hover:text-emerald-800 transition-all cursor-pointer group"
+          title="Alterar região"
+        >
+          <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
+          <div class="text-left">
+            <span class="block text-[10px] uppercase font-bold text-slate-400 group-hover:text-emerald-600">Região Ativa</span>
+            <span class="text-xs font-bold truncate max-w-[120px] sm:max-w-[160px] block">
+              {{ regionState.regionName() }}
+            </span>
+          </div>
+          <svg class="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition-transform group-hover:translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</header>
+
+<app-region-modal [isOpen]="isModalOpen()" (close)="closeRegionModal()" />
+<app-scan-url-modal [isOpen]="isScanModalOpen()" (close)="closeScanModal()" />

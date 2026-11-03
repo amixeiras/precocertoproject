@@ -1,0 +1,400 @@
+<div class="space-y-8">
+
+  <!-- Main Tabs Switcher -->
+  <div class="flex items-center justify-between border-b border-slate-200/80 pb-4 flex-wrap gap-4">
+    <div class="flex items-center gap-2 bg-slate-100 p-1.5 rounded-2xl border border-slate-200/80">
+      
+      <!-- TAB 1: Estabelecimentos & Melhores Ofertas -->
+      <button
+        type="button"
+        (click)="activeTab.set('establishments')"
+        [class.bg-white]="activeTab() === 'establishments'"
+        [class.text-brand-700]="activeTab() === 'establishments'"
+        [class.shadow-md]="activeTab() === 'establishments'"
+        [class.shadow-slate-200/60]="activeTab() === 'establishments'"
+        [class.text-slate-600]="activeTab() !== 'establishments'"
+        class="flex items-center gap-2 px-4 sm:px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer"
+      >
+        <i class="ph-bold ph-storefront text-base"></i>
+        <span>Estabelecimentos & Melhores Ofertas</span>
+        @if (establishments().length > 0) {
+          <span class="text-[11px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 font-extrabold ml-1">
+            {{ establishments().length }}
+          </span>
+        }
+      </button>
+
+      <!-- TAB 2: Produtos e Ofertas -->
+      <button
+        type="button"
+        (click)="activeTab.set('products')"
+        [class.bg-white]="activeTab() === 'products'"
+        [class.text-emerald-700]="activeTab() === 'products'"
+        [class.shadow-md]="activeTab() === 'products'"
+        [class.shadow-slate-200/60]="activeTab() === 'products'"
+        [class.text-slate-600]="activeTab() !== 'products'"
+        class="flex items-center gap-2 px-4 sm:px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer"
+      >
+        <i class="ph-bold ph-shopping-cart-simple text-base"></i>
+        <span>Produtos & Ofertas</span>
+        @if (products().length > 0) {
+          <span class="text-[11px] px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 font-extrabold ml-1">
+            {{ products().length }}
+          </span>
+        }
+      </button>
+
+    </div>
+
+    <!-- Active Region Badge -->
+    <div class="text-xs font-semibold text-slate-500 flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-brand-600 animate-pulse"></span>
+      <span>Região: <strong class="text-slate-800">{{ regionState.regionName() }}</strong></span>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- ABA 1: ESTABELECIMENTOS & MELHORES OFERTAS (MODELO ANEXO) -->
+  <!-- ======================================================== -->
+  @if (activeTab() === 'establishments') {
+    <div class="space-y-10 animate-fade-in">
+      
+      <!-- Hero Section do Encarte -->
+      <section class="bg-gradient-to-b from-brand-50/70 via-white to-slate-50 border border-slate-200/60 rounded-3xl p-6 sm:p-10 shadow-xs">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          
+          <!-- Textos e Filtros de Categoria -->
+          <div class="lg:col-span-7 space-y-4">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100/90 text-brand-800 text-xs font-bold">
+              <span class="flex h-2 w-2 rounded-full bg-brand-600 animate-pulse"></span>
+              Atualizado Hoje com Encartes Oficiais
+            </div>
+
+            <h1 class="text-2xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+              Economize no supermercado sem sair de casa.
+            </h1>
+
+            <p class="text-sm sm:text-base text-slate-600 max-w-2xl leading-relaxed">
+              Consulte até <strong class="text-slate-900">5 ofertas imperdíveis</strong> de cada supermercado da sua região, compare quem tem o menor preço e monte sua lista econômica.
+            </p>
+
+            <!-- Filtros de Categorias em Chips -->
+            <div class="pt-2">
+              <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-2.5">
+                Filtrar ofertas por categoria:
+              </span>
+              <div class="flex flex-wrap gap-2">
+                @for (cat of establishmentCategories; track cat.id) {
+                  <button 
+                    type="button"
+                    (click)="setEstablishmentCategory(cat.id)"
+                    [class.bg-brand-600]="selectedEstablishmentCategory() === cat.id"
+                    [class.text-white]="selectedEstablishmentCategory() === cat.id"
+                    [class.shadow-md]="selectedEstablishmentCategory() === cat.id"
+                    [class.shadow-brand-500/20]="selectedEstablishmentCategory() === cat.id"
+                    [class.ring-2]="selectedEstablishmentCategory() === cat.id"
+                    [class.ring-brand-600/30]="selectedEstablishmentCategory() === cat.id"
+                    [class.bg-white]="selectedEstablishmentCategory() !== cat.id"
+                    [class.text-slate-700]="selectedEstablishmentCategory() !== cat.id"
+                    [class.border]="selectedEstablishmentCategory() !== cat.id"
+                    [class.border-slate-200]="selectedEstablishmentCategory() !== cat.id"
+                    class="px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer hover:border-brand-500 hover:bg-slate-50"
+                  >
+                    <i class="ph {{ cat.icon }} text-sm" [class.text-white]="selectedEstablishmentCategory() === cat.id" [class.text-slate-400]="selectedEstablishmentCategory() !== cat.id"></i>
+                    <span>{{ cat.label }}</span>
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Box Comparador Rápido de Preço -->
+          <div class="lg:col-span-5">
+            <app-quick-comparator [regionId]="currentRegionId()" />
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Barra de Status, Busca Textual e Ordenação -->
+      <section class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 gap-4 border-b border-slate-200/80">
+        <div>
+          <h2 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+            <span>Estabelecimentos & Melhores Ofertas</span>
+            <span class="text-sm font-semibold bg-slate-200 text-slate-700 px-2.5 py-0.5 rounded-full">
+              {{ establishments().length }}
+            </span>
+          </h2>
+          <p class="text-sm text-slate-500 mt-1">
+            Exibindo todos os supermercados cadastrados na região 
+            <strong class="text-brand-700">{{ regionState.regionName() }}</strong>
+          </p>
+        </div>
+
+        <div class="flex items-center gap-3 flex-wrap">
+          <!-- Campo de Busca por Mercado / Oferta -->
+          <div class="relative min-w-[220px]">
+            <input 
+              type="text"
+              [ngModel]="establishmentSearchTerm()"
+              (ngModelChange)="establishmentSearchTerm.set($event)"
+              placeholder="Buscar mercado ou produto..."
+              class="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500"
+            />
+            <i class="ph ph-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-sm"></i>
+          </div>
+
+          <!-- Dropdown Ordenação -->
+          <div class="flex items-center gap-2">
+            <label for="sortEstabBy" class="text-xs font-bold text-slate-500 uppercase tracking-wider hidden sm:inline">
+              Ordenar por:
+            </label>
+            <select 
+              id="sortEstabBy" 
+              [ngModel]="establishmentSortBy()"
+              (ngModelChange)="setEstablishmentSort($event)"
+              class="bg-white border border-slate-200 rounded-xl text-xs font-semibold px-3 py-2 text-slate-700 outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer"
+            >
+              <option value="featured">Destaques da Região</option>
+              <option value="discount">Maior Desconto Médio</option>
+              <option value="rating">Melhor Avaliação</option>
+              <option value="name">Nome (A-Z)</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- Grid dos Estabelecimentos com até 5 Melhores Ofertas -->
+      @if (isEstablishmentsLoading()) {
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          @for (i of [1, 2, 3, 4]; track i) {
+            <div class="bg-white rounded-3xl border border-slate-200 p-6 space-y-4 animate-pulse">
+              <div class="h-12 bg-slate-200 rounded-xl w-1/3"></div>
+              <div class="h-4 bg-slate-100 rounded-md"></div>
+              <div class="h-28 bg-slate-100 rounded-2xl"></div>
+            </div>
+          }
+        </div>
+      } @else if (establishments().length === 0) {
+        <div class="py-16 text-center bg-white rounded-3xl border border-slate-200 p-8 space-y-4">
+          <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto text-slate-400">
+            <i class="ph ph-magnifying-glass text-4xl"></i>
+          </div>
+          <h3 class="text-lg font-bold text-slate-800">Nenhum resultado encontrado</h3>
+          <p class="text-slate-500 text-sm max-w-md mx-auto">
+            Não encontramos supermercados ou ofertas para os filtros selecionados nesta região.
+          </p>
+          <button 
+            type="button"
+            (click)="resetEstablishmentFilters()" 
+            class="px-5 py-2.5 bg-brand-600 text-white rounded-xl text-sm font-semibold hover:bg-brand-700 transition cursor-pointer"
+          >
+            Limpar Filtros e Ver Todos
+          </button>
+        </div>
+      } @else {
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          @for (item of establishments(); track item.market.idValue) {
+            <app-establishment-card 
+              [market]="item.market" 
+              [offers]="item.activeOffers" 
+              (openFlyer)="openFlyerModal($event)"
+            />
+          }
+        </div>
+      }
+
+      <!-- Modal de Encarte Completo -->
+      <app-store-flyer-modal 
+        [market]="selectedFlyerMarket()" 
+        (close)="closeFlyerModal()" 
+      />
+
+    </div>
+  }
+
+  <!-- ======================================================== -->
+  <!-- ABA 2: PRODUTOS E OFERTAS (CÓDIGO ORIGINAL INTACTO)      -->
+  <!-- ======================================================== -->
+  @if (activeTab() === 'products') {
+    <div class="space-y-10 animate-fade-in">
+
+      <!-- Hero Section Original -->
+      <section class="relative overflow-hidden rounded-3xl bg-linear-to-br from-slate-900 via-emerald-950 to-slate-900 text-white p-8 sm:p-12 shadow-xl border border-emerald-900/30">
+        <div class="relative z-10 max-w-3xl space-y-4">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold uppercase tracking-wider">
+            <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            Economia Inteligente &bull; Região {{ regionState.regionName() }}
+          </div>
+
+          <h1 class="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
+            Encontre o <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-200">menor preço</span> nos mercados perto de você.
+          </h1>
+
+          <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+            Pesquise produtos de supermercado, compare preços em tempo real e saiba exatamente onde comprar para economizar até 35% no carrinho de compras.
+          </p>
+
+          <!-- Real-time Search Box -->
+          <div class="pt-4 max-w-2xl">
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <input
+                type="text"
+                [ngModel]="searchTerm()"
+                (ngModelChange)="searchTerm.set($event)"
+                placeholder="Pesquise por produto (ex: Arroz, Feijão, Leite, Café, Omo)..."
+                class="w-full pl-12 pr-4 py-4 rounded-2xl bg-white text-slate-900 placeholder-slate-400 text-sm sm:text-base font-medium shadow-2xl focus:outline-none focus:ring-4 focus:ring-emerald-500/30 transition-all"
+              />
+              @if (searchTerm()) {
+                <button
+                  type="button"
+                  (click)="searchTerm.set('')"
+                  class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
+                >
+                  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Background Accents -->
+        <div class="absolute -right-20 -bottom-20 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      </section>
+
+      <!-- Categories Filter Horizontal Scroll -->
+      <section class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-400">Categorias de Produtos</h2>
+          <span class="text-xs text-slate-500">{{ products().length }} produtos encontrados</span>
+        </div>
+
+        <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+          @for (cat of categories; track cat) {
+            <button
+              type="button"
+              (click)="setCategory(cat)"
+              [class.bg-emerald-600]="selectedCategory() === cat"
+              [class.text-white]="selectedCategory() === cat"
+              [class.shadow-md]="selectedCategory() === cat"
+              [class.shadow-emerald-600/20]="selectedCategory() === cat"
+              [class.bg-white]="selectedCategory() !== cat"
+              [class.text-slate-700]="selectedCategory() !== cat"
+              [class.border-slate-200]="selectedCategory() !== cat"
+              class="shrink-0 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold border transition-all cursor-pointer hover:border-emerald-300"
+            >
+              {{ cat }}
+            </button>
+          }
+        </div>
+      </section>
+
+      <!-- Controls: Sort & Filter Toggle -->
+      <section class="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
+        <!-- Promotions Only Switch -->
+        <button
+          type="button"
+          (click)="togglePromotions()"
+          [class.bg-emerald-50]="onlyPromotions()"
+          [class.border-emerald-300]="onlyPromotions()"
+          [class.text-emerald-800]="onlyPromotions()"
+          class="inline-flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-all cursor-pointer"
+        >
+          <span
+            [class.bg-emerald-600]="onlyPromotions()"
+            [class.bg-slate-300]="!onlyPromotions()"
+            class="w-4 h-4 rounded-full flex items-center justify-center transition-colors text-white text-[10px]"
+          >
+            @if (onlyPromotions()) { ✓ }
+          </span>
+          <span>Apenas Ofertas em Promoção</span>
+        </button>
+
+        <!-- Sort Dropdown/Buttons -->
+        <div class="flex items-center gap-2 text-xs">
+          <span class="text-slate-400 font-semibold hidden sm:inline">Ordenar por:</span>
+          <div class="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200/80">
+            <button
+              type="button"
+              (click)="setSortBy('cheapest')"
+              [class.bg-white]="sortBy() === 'cheapest'"
+              [class.text-emerald-700]="sortBy() === 'cheapest'"
+              [class.font-bold]="sortBy() === 'cheapest'"
+              [class.shadow-xs]="sortBy() === 'cheapest'"
+              class="px-3 py-1.5 rounded-lg text-slate-600 transition-all cursor-pointer"
+            >
+              Menor Preço
+            </button>
+            <button
+              type="button"
+              (click)="setSortBy('biggest_savings')"
+              [class.bg-white]="sortBy() === 'biggest_savings'"
+              [class.text-emerald-700]="sortBy() === 'biggest_savings'"
+              [class.font-bold]="sortBy() === 'biggest_savings'"
+              [class.shadow-xs]="sortBy() === 'biggest_savings'"
+              class="px-3 py-1.5 rounded-lg text-slate-600 transition-all cursor-pointer"
+            >
+              Maior Economia
+            </button>
+            <button
+              type="button"
+              (click)="setSortBy('name')"
+              [class.bg-white]="sortBy() === 'name'"
+              [class.text-emerald-700]="sortBy() === 'name'"
+              [class.font-bold]="sortBy() === 'name'"
+              [class.shadow-xs]="sortBy() === 'name'"
+              class="px-3 py-1.5 rounded-lg text-slate-600 transition-all cursor-pointer"
+            >
+              Nome
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Product Grid -->
+      <section class="space-y-6">
+        @if (isLoading()) {
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            @for (i of [1, 2, 3, 4, 5, 6, 7, 8]; track i) {
+              <div class="bg-white rounded-2xl border border-slate-200 p-4 space-y-4 animate-pulse">
+                <div class="h-44 bg-slate-200 rounded-xl"></div>
+                <div class="h-4 bg-slate-200 rounded-md w-3/4"></div>
+                <div class="h-3 bg-slate-100 rounded-md w-1/2"></div>
+                <div class="h-8 bg-slate-200 rounded-xl"></div>
+              </div>
+            }
+          </div>
+        } @else if (products().length === 0) {
+          <div class="text-center py-16 px-4 bg-white rounded-3xl border border-slate-200/80 shadow-xs space-y-3">
+            <div class="w-16 h-16 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
+              <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-bold text-slate-800">Nenhum produto encontrado</h3>
+            <p class="text-sm text-slate-500 max-w-md mx-auto">
+              Não localizamos produtos com os filtros aplicados nesta região. Tente alterar o termo de busca ou selecionar outra região no topo da página.
+            </p>
+          </div>
+        } @else {
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            @for (product of products(); track product.idValue) {
+              <app-product-card [product]="product" />
+            }
+          </div>
+        }
+      </section>
+
+    </div>
+  }
+
+</div>

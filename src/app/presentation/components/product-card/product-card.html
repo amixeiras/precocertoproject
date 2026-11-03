@@ -1,0 +1,93 @@
+@let prod = product();
+@let lowest = prod.getLowestOffer();
+@let highest = prod.getHighestOffer();
+@let savings = prod.calculateMaxSavings();
+
+<div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden group hover:-translate-y-1">
+  <!-- Image & Tags Container -->
+  <div class="relative h-48 w-full bg-slate-50 overflow-hidden">
+    <img
+      [src]="prod.imageUrl"
+      [alt]="prod.fullName"
+      loading="lazy"
+      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+    />
+    <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+
+    <!-- Category Badge -->
+    <span class="absolute top-3 left-3 bg-white/90 backdrop-blur-xs text-slate-800 text-[11px] font-bold px-2.5 py-1 rounded-full shadow-xs">
+      {{ prod.category }}
+    </span>
+
+    <!-- Savings Badge -->
+    @if (savings.percentage > 0) {
+      <span class="absolute top-3 right-3 bg-emerald-600 text-white text-[11px] font-extrabold px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+        </svg>
+        Economize até {{ savings.percentage }}%
+      </span>
+    }
+
+    <!-- Brand / Unit on image -->
+    <div class="absolute bottom-2.5 left-3 text-white text-xs font-semibold drop-shadow-md">
+      {{ prod.brand }} &bull; {{ prod.unit }}
+    </div>
+  </div>
+
+  <!-- Card Body -->
+  <div class="p-5 flex-1 flex flex-col justify-between">
+    <div>
+      <h3 class="text-base font-bold text-slate-900 group-hover:text-emerald-700 transition-colors leading-snug">
+        {{ prod.name }}
+      </h3>
+      <p class="text-sm text-slate-600 mt-2 leading-relaxed break-words font-normal">
+        {{ prod.description }}
+      </p>
+    </div>
+
+    <!-- Pricing Comparison Block -->
+    <div class="mt-4 pt-4 border-t border-slate-100 space-y-3">
+      @if (lowest) {
+        <div class="flex items-end justify-between">
+          <div>
+            <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Melhor Preço</span>
+            <span class="text-2xl font-black text-emerald-600 tracking-tight">
+              {{ lowest.price.amount | currencyBrl }}
+            </span>
+          </div>
+
+          <div class="text-right">
+            <span class="text-[10px] text-slate-400 block">no mercado</span>
+            <span class="text-xs font-bold text-slate-700 max-w-[120px] truncate block" [title]="lowest.marketName">
+              {{ lowest.marketName }}
+            </span>
+          </div>
+        </div>
+
+        @if (highest && highest.price.amount > lowest.price.amount) {
+          <div class="flex items-center justify-between text-xs text-slate-500 bg-slate-50 px-2.5 py-1.5 rounded-lg">
+            <span>Preço mais alto:</span>
+            <span class="line-through text-slate-400 font-medium">
+              {{ highest.price.amount | currencyBrl }} ({{ highest.marketName }})
+            </span>
+          </div>
+        }
+      } @else {
+        <p class="text-xs text-slate-400 italic">Sem ofertas nesta região.</p>
+      }
+
+      <!-- Action Button -->
+      <a
+        [routerLink]="['/produto', prod.idValue]"
+        class="w-full mt-2 inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-emerald-600 text-white text-xs font-bold transition-all shadow-xs hover:shadow-md cursor-pointer"
+      >
+        <span>Comparar {{ prod.offersCount }} mercados</span>
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+        </svg>
+      </a>
+    </div>
+  </div>
+</div>
+

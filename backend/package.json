@@ -1,0 +1,39 @@
+{
+  "name": "precocerto-backend",
+  "version": "1.0.0",
+  "description": "Backend de monitoramento e scraping de preços de supermercados por região",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
+    "scrape": "tsx src/cli-scrape.ts",
+    "db:ddl": "tsx scripts/run-ddl.ts",
+    "db:dml": "tsx scripts/run-dml.ts",
+    "db:setup": "tsx scripts/run-scripts.ts",
+    "db:limpar-estabelecimentos": "tsx scripts/limpar-estabelecimentos.ts",
+    "db:limpar-tudo": "tsx scripts/limpar-tudo-exceto-users.ts",
+    "admin:senha": "tsx scripts/alterar-senha.ts",
+    "db:migrate-to-pg": "tsx scripts/migrate-sqlite-to-postgres.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^18.0.9",
+    "express": "^4.21.2",
+    "node-cron": "^3.0.3",
+    "pg": "^8.23.1",
+    "playwright": "^1.64.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/cors": "^2.8.17",
+    "@types/dotenv": "^6.1.1",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.13.9",
+    "@types/node-cron": "^3.0.11",
+    "@types/pg": "^8.23.1",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}
